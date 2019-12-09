@@ -49,3 +49,12 @@ func ListReleases(cfg agent.Config, w http.ResponseWriter, req *http.Request, pa
 func ListAllReleases(cfg agent.Config, w http.ResponseWriter, req *http.Request, _ handlerutil.Params) {
 	ListReleases(cfg, w, req, make(map[string]string))
 }
+
+func CreateRelease(cfg agent.Config, w http.ResponseWriter, req *http.Request, params handlerutil.Params) {
+	lol, err := agent.CreateRelease(cfg, "HALLOJname", "HALLOJns", "HALLOJvalues", nil)
+	if err != nil {
+		response.NewErrorResponse(handlerutil.ErrorCode(err), err.Error()).Write(w)
+		return
+	}
+	response.NewDataResponse(lol).Write(w)
+}

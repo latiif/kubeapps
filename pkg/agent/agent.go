@@ -3,8 +3,10 @@ package agent
 import (
 	"strconv"
 
+	chartUtils "github.com/kubeapps/kubeapps/pkg/chart"
 	"github.com/kubeapps/kubeapps/pkg/proxy"
 	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/kube"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/storage"
@@ -30,6 +32,7 @@ type Options struct {
 type Config struct {
 	ActionConfig *action.Configuration
 	AgentOptions Options
+	ChartClient  chartUtils.Resolver
 }
 
 func ListReleases(config Config, namespace string, status string) ([]proxy.AppOverview, error) {
@@ -47,6 +50,10 @@ func ListReleases(config Config, namespace string, status string) ([]proxy.AppOv
 		appOverviews[i] = appOverviewFromRelease(r)
 	}
 	return appOverviews, nil
+}
+
+func CreateRelease(config Config, name, namespace, values string, ch *chart.Chart) (*release.Release, error) {
+	panic("HALLOJ CreateRelease")
 }
 
 func NewActionConfig(driver DriverType, token, namespace string) *action.Configuration {
