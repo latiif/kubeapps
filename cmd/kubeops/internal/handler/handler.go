@@ -28,15 +28,9 @@ func WithAgentConfig(driverType agent.DriverType, options agent.Options) func(f 
 		return func(w http.ResponseWriter, req *http.Request, params handlerutil.Params) {
 			namespace := params[namespaceParam]
 			token := auth.ExtractToken(req.Header.Get(authHeader))
-			actionConfig, err := agent.NewActionConfig(driverType, token, namespace)
-			if err != nil {
-				// TODO log details rather than return potentially sensitive details in error.
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
 			cfg := agent.Config{
 				AgentOptions: options,
-				ActionConfig: actionConfig,
+				ActionConfig: agent.NewActionConfig(driverType, token, namespace),
 			}
 			f(cfg, w, req, params)
 		}
@@ -44,7 +38,7 @@ func WithAgentConfig(driverType agent.DriverType, options agent.Options) func(f 
 }
 
 func ListReleases(cfg agent.Config, w http.ResponseWriter, req *http.Request, params handlerutil.Params) {
-	apps, err := agent.ListReleases(cfg.ActionConfig, params[namespaceParam], cfg.AgentOptions.ListLimit, req.URL.Query().Get("statuses"))
+	apps, err := agent.ListReleases(cfg, params[namespaceParam], req.URL.Query().Get("statuses"))
 	if err != nil {
 		response.NewErrorResponse(handlerutil.ErrorCode(err), err.Error()).Write(w)
 		return
@@ -54,4 +48,13 @@ func ListReleases(cfg agent.Config, w http.ResponseWriter, req *http.Request, pa
 
 func ListAllReleases(cfg agent.Config, w http.ResponseWriter, req *http.Request, _ handlerutil.Params) {
 	ListReleases(cfg, w, req, make(map[string]string))
+}
+
+func CreateRelease(cfg agent.Config, w http.ResponseWriter, req *http.Request, params handlerutil.Params) {
+	lol, err := agent.CreateRelease(cfg, "HALLOJname", "HALLOJns", "HALLOJvalues", nil)
+	if err != nil {
+		response.NewErrorResponse(handlerutil.ErrorCode(err), err.Error()).Write(w)
+		return
+	}
+	response.NewDataResponse(lol).Write(w)
 }

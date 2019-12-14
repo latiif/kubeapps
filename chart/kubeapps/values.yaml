@@ -274,8 +274,9 @@ hooks:
 kubeops:
   replicaCount: 2
   image:
-    registry: docker.io
-    repository: kubeapps/kubeops
+    # TODO: These values are for development only!
+    registry: kubeapps
+    repository: kubeops
     tag: latest
   service:
     port: 8080
