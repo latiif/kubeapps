@@ -64,7 +64,29 @@ func TestActions(t *testing.T) {
 		ResponseBody      string //optional
 	}
 
-	tests := []testScenario{}
+	tests := []testScenario{
+		{
+			// Scenario params
+			Description: "List all releases",
+			ExistingReleases: []release.Release{
+				createRelease("ch1", "foobar", "default", 1, release.StatusDeployed),
+				createRelease("ch2", "foo", "not-default", 1, release.StatusDeployed),
+			},
+			DisableAuth: false,
+			// Request params
+			RequestBody:  "",
+			RequestQuery: "",
+			Action:       "listall",
+			Params:       map[string]string{},
+			// Expected result
+			StatusCode: 200,
+			RemainingReleases: []release.Release{
+				createRelease("ch1", "foobar", "default", 1, release.StatusDeployed),
+				createRelease("ch2", "foo", "not-default", 1, release.StatusDeployed),
+			},
+			ResponseBody: `{"data":[{"releaseName":"foo","version":"1","namespace":"not-default","status":"deployed","chart":"","chartMetadata":{}},{"releaseName":"foobar","version":"1","namespace":"default","status":"deployed","chart":"","chartMetadata":{}}]}`,
+		},
+	}
 
 	for _, test := range tests {
 		// Initialize environment for test
@@ -85,6 +107,8 @@ func TestActions(t *testing.T) {
 		// Perform request
 		t.Log(test.Description)
 		switch test.Action {
+		case "listall":
+			ListAllReleases(*cfg, response, req, test.Params)
 		default:
 			t.Errorf("Unexpected action %s", test.Action)
 		}
